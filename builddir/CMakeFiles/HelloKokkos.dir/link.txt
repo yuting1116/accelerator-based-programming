@@ -1,0 +1,1 @@
+/usr/bin/c++ -DKOKKOS_DEPENDENCE CMakeFiles/HelloKokkos.dir/jacobian.cpp.o -o HelloKokkos  _deps/kokkos-build/containers/src/libkokkoscontainers.a _deps/kokkos-build/algorithms/src/libkokkosalgorithms.a _deps/kokkos-build/simd/src/libkokkossimd.a _deps/kokkos-build/core/src/libkokkoscore.a -ldl

@@ -1,0 +1,3 @@
+/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/CMakeFiles/kokkos-populate.dir
+/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/CMakeFiles/edit_cache.dir
+/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/CMakeFiles/rebuild_cache.dir

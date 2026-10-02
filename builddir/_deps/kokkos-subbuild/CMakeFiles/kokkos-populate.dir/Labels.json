@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/CMakeFiles/kokkos-populate"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/CMakeFiles/kokkos-populate.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/CMakeFiles/kokkos-populate-complete.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-build.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-configure.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-download.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-install.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-mkdir.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-patch.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-test.rule"
+		},
+		{
+			"file" : "/gorilla/home/yuting/assignment3/builddir/_deps/kokkos-subbuild/kokkos-populate-prefix/src/kokkos-populate-stamp/kokkos-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"kokkos-populate"
+		],
+		"name" : "kokkos-populate"
+	}
+}
