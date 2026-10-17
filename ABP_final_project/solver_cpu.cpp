@@ -36,8 +36,7 @@ void run_case1(const int steps, float*** cur_F, float*** new_F, float** density,
     float** velocity_x, float** velocity_y, bool** solid, const int Nx, const int Ny, float avg_pressure)
 {
     init_Acoustic_pulse(cur_F, density, velocity_x, velocity_y, Nx, Ny);
-    cout << "init Density: " << density[50][50] << endl;
-    cout << "init F: " << cur_F[50][50][0] << endl;
+    cout << "run case 1" << endl;
 
     for (int step=0; step<steps; step++)
     {
@@ -60,11 +59,11 @@ void run_case2(const int steps, float*** cur_F, float*** new_F, float** density,
     std::ofstream fout("./data2/info.txt");
     fout << Nx << " " << Ny << "\n";
     fout.close();
+
     const float velx_in = 0.1f;
     create_cylinder(solid, Nx, Ny);
     init_Karman_vortex_street(cur_F, density, velocity_x, velocity_y, solid, Nx, Ny);
-    cout << "init Density: " << density[50][50] << endl;
-    cout << "init F: " << cur_F[50][50][0] << endl;
+    cout << "run case2" << endl;
 
     int frame = 0;
     for (int step=0; step<steps; step++)
@@ -74,7 +73,7 @@ void run_case2(const int steps, float*** cur_F, float*** new_F, float** density,
         wind_tunnel_boundary_condition(velx_in, new_F, density, velocity_x, velocity_y, solid, Nx, Ny);
 
         // // cal_vortivity(vortivity, velocity_x, velocity_y, Nx, Ny);
-        if (step % 20 ==0){
+        if (step % 25 ==0){
             save_frame(2, frame, density, velocity_x, velocity_y, Nx, Ny);
             frame++;
             cout << "step: " << step << "frame: " << frame << endl;
@@ -97,7 +96,7 @@ float cal_feq(int cx, int cy, float w, float density, float velx, float vely)
 
 void create_cylinder(bool** solid, const int Nx, const int Ny)
 {
-    int cx = 100, cy = 100;
+    int cx = 150, cy = 100;
     int R = 20;
 
     for (int j = 0; j < Ny; ++j)
@@ -107,22 +106,17 @@ void create_cylinder(bool** solid, const int Nx, const int Ny)
             int dx = i - cx;
             int dy = j - cy;
 
-            
             if ((dx * dx + dy * dy <= R * R) || // cylinder
                 (j == 0) || (j == Ny-1))  // wind tunnel wall
             {
                 solid[j][i] = true;
             }
         }
-    }
-
-    // wind tunnel
-    
+    }    
 }
 
 void init_Acoustic_pulse(float*** F, float** density, float** velocity_x, float** velocity_y, int Nx, int Ny){
     // configutation
-    velx_inlet = 0.1f;
     relax_time = 1.2f;
 
     double xc = 0.5 * Nx;
@@ -161,9 +155,11 @@ void init_Karman_vortex_street(float*** F, float** density, float** velocity_x, 
             velocity_y[j][i] = 0.0f;
             for (int k = 0; k < NEIGHBOR; ++k)
             {
-                F[j][i][k] = solid[j][i] ? 0.0f : cal_feq(CX[k], CY[k], weight[k], density[j][i], velocity_x[j][i], velocity_y[j][i]); //init
-            }
+                F[j][i][k] = cal_feq(CX[k], CY[k], weight[k], density[j][i], velocity_x[j][i], velocity_y[j][i]); //init
+                if ((i==0) && (j==0 || j==1)) 
+                    cout << j << ", s:" << solid[j][i] << ", "<< CX[k] << ", " <<  CY[k] << ", " << weight[k] << ", " << density[j][i] << ", "  << velocity_x[j][i] << ", "  <<velocity_y[j][i] << endl;
 
+            }
         }
     }
 }
@@ -174,48 +170,37 @@ void collision(float*** new_F, float*** cur_F, float** density, float& avg_press
     { 
         for (int i=0; i<Nx; i++)
         {
-            int idx = j * Nx + i;
+            if (solid[j][i]) {
+                velocity_x[j][i] = 0;
+                velocity_y[j][i] = 0;
+                continue;
+            }
             density[j][i] = 0;
             velocity_x[j][i] = 0;
             velocity_y[j][i] = 0;
 
-            if (!solid[j][i]){
-                float momentum_x = 0.0f;
-                float momentum_y = 0.0f;
-                for (int k=0; k<9; k++)
-                {
-                    int cx = CX[k];
-                    int cy = CY[k];
-                    density[j][i] += cur_F[j][i][k];
-                    momentum_x += cx * cur_F[j][i][k];
-                    momentum_y += cy * cur_F[j][i][k];
-                }
-                velocity_x[j][i] = momentum_x/density[j][i];
-                velocity_y[j][i] = momentum_y/density[j][i];
+            float momentum_x = 0.0f;
+            float momentum_y = 0.0f;
+            for (int k=0; k<9; k++)
+            {
+                int cx = CX[k];
+                int cy = CY[k];
+                density[j][i] += cur_F[j][i][k];
+                momentum_x += cx * cur_F[j][i][k];
+                momentum_y += cy * cur_F[j][i][k];
+            }
+            velocity_x[j][i] = momentum_x/density[j][i];
+            velocity_y[j][i] = momentum_y/density[j][i];
 
-                // calculate f_eq
-                for (int k=0; k<9; k++)
-                {
-                    float omega = (1.0f/relax_time);
-                    float f_eq =  cal_feq(CX[k], CY[k], weight[k], density[j][i], velocity_x[j][i], velocity_y[j][i]);
-                    cur_F[j][i][k] += omega * (f_eq - cur_F[j][i][k]);
-                }
+            // calculate f_eq
+            for (int k=0; k<9; k++)
+            {
+                float omega = (1.0f/relax_time);
+                float f_eq =  cal_feq(CX[k], CY[k], weight[k], density[j][i], velocity_x[j][i], velocity_y[j][i]);
+                cur_F[j][i][k] += omega * (f_eq - cur_F[j][i][k]);
             }
         }
     }
-}
-
-void cal_vortivity(float** omega_z, float* const* vx, float* const* vy, const int Nx, const int Ny)
-{
-    for (int j=0; j<Ny; j++)
-    { 
-        for (int i=0; i<Nx; i++)
-        {
-            int idx = j * Nx + i;
-            omega_z[j][i] = 0.5 * (vy[j+1][i] - vy[j-1][i] - vx[j][i+1] + vx[j][i-1]);
-        }
-    }
-
 }
 
 bool check_boundary(int x, int y, int Nx, int Ny)
@@ -242,19 +227,12 @@ void streaming(float*** F_prime, float*** new_F, bool* const* solid, int Nx, int
     for (int j = 0; j < Ny; j++) {
         for (int i = 0; i < Nx; i++) {
             for (int k = 0; k < 9; k++) {
-
                 int ip = i - CX[k];
                 int jp = j - CY[k];
                 if (check_boundary(ip, jp, Nx, Ny))
                 {
                     new_F[j][i][k] = solid[jp][ip] ? F_prime[j][i][OPP[k]] : F_prime[jp][ip][k];
-
                 }
-                else
-                {
-                    new_F[j][i][k] = 0;
-                }
-                
             }
         }
     }
@@ -265,9 +243,6 @@ void save_frame(const int case_id, const int frame, float* const* density, float
     std::stringstream ss;
     ss << "./data" << case_id << "/frame_" << std::setw(6) << std::setfill('0') << frame << ".bin";
     std::ofstream fout(ss.str(), std::ios::binary);
-    // fout.write(reinterpret_cast<const char*>(density), Nx * Ny * sizeof(float));
-    // fout.write(reinterpret_cast<const char*>(velx),Nx * Ny * sizeof(float));
-    // fout.write(reinterpret_cast<const char*>(vely),Nx * Ny * sizeof(float));
     for (int y = 0; y < Ny; ++y) {
         fout.write(
         reinterpret_cast<const char*>(density[y]),
@@ -300,16 +275,14 @@ void wind_tunnel_boundary_condition(const float velx_in, float*** F, float* cons
         for (int k = 0; k < 9; ++k)
             rho += F[j][0][k];
 
-        // uy = momentum_y / rho
         float uy = (F[j][0][4] + F[j][0][6] + F[j][0][8] - F[j][0][2] - F[j][0][5] - F[j][0][7] ) / rho;
-        F[j][0][1] = cal_feq(CX[1], CY[1], weight[1], density[j][0], velx_in, uy);
-        F[j][0][5] = cal_feq(CX[5], CY[5], weight[5], density[j][0], velx_in, uy);
-        F[j][0][6] = cal_feq(CX[6], CY[6], weight[6], density[j][0], velx_in, uy);
-        vely[j][0] = uy;
+        F[j][0][1] = cal_feq(CX[1], CY[1], weight[1], rho, velx_in,  uy);
+        F[j][0][5] = cal_feq(CX[5], CY[5], weight[5], rho, velx_in,  uy);
+        F[j][0][6] = cal_feq(CX[6], CY[6], weight[6], rho, velx_in,  uy);
     }
 
     // outlet
-    for (int j = 0; j < Ny; ++j) {
+    for (int j = 1; j < Ny-1; ++j) {
         for (int k = 0; k < NEIGHBOR; ++k) {
             F[j][Nx-1][k] = F[j][Nx-2][k];
         }
@@ -343,8 +316,8 @@ int main(int argc, char* argv[]) {
     bool**  solid      = new bool*[Ny];
     init_array(new_F, cur_F, density, velocity_x, velocity_y, solid, Nx, Ny);
     float avg_pressure = 0.0f;
-    run_case1(steps, cur_F, new_F, density, velocity_x, velocity_y, solid, Nx, Ny, avg_pressure);
-    // run_case2(steps, cur_F, new_F, density, velocity_x, velocity_y, solid, Nx, Ny, avg_pressure);
+    // run_case1(steps, cur_F, new_F, density, velocity_x, velocity_y, solid, Nx, Ny, avg_pressure);
+    run_case2(steps, cur_F, new_F, density, velocity_x, velocity_y, solid, Nx, Ny, avg_pressure);
 
     delete_array(new_F, cur_F, density, velocity_x, velocity_y, solid, Nx, Ny);
     return 0;
