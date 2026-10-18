@@ -156,9 +156,6 @@ void init_Karman_vortex_street(float* F, float* density, float* velocity_x, floa
             for (int k = 0; k < NEIGHBOR; ++k)
             {
                 F[k*Nx*Ny + j*Nx + i] = cal_feq(CX[k], CY[k], weight[k], density[j*Nx+i], velocity_x[j*Nx+i], velocity_y[j*Nx+i]); //init
-                if ((i==0) && (j==0 || j==1)) 
-                    cout << j << ", s:" << solid[j*Nx+i] << ", "<< CX[k] << ", " <<  CY[k] << ", " << weight[k] << ", " << density[j*Nx+i] << ", "  << velocity_x[j*Nx+i] << ", "  <<velocity_y[j*Nx+i] << endl;
-
             }
         }
     }
